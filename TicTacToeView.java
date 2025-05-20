@@ -40,7 +40,7 @@ class TicTacToeView extends javax.swing.JFrame implements GameObserver {
         buttonPanel.setBackground(java.awt.Color.darkGray);
         
         newGameButton = new javax.swing.JButton("New Game");
-        newGameButton.addActionListener(e -> controller.startNewGame());
+        newGameButton.addActionListener(e -> controller.startNewGameWithPlayerChoice()); // Changed to prompt player choice
         buttonPanel.add(newGameButton);
         
         historyButton = new javax.swing.JButton("Game History");
@@ -71,6 +71,26 @@ class TicTacToeView extends javax.swing.JFrame implements GameObserver {
         add(boardPanel, java.awt.BorderLayout.CENTER);
         
         updateStatus();
+    }
+    
+    // Method to prompt player choice
+    public void promptPlayerChoice() {
+        String[] options = {"1 Player", "2 Players"};
+        int choice = javax.swing.JOptionPane.showOptionDialog(this, 
+                                                          "Select the number of players:", 
+                                                          "Choose Players", 
+                                                          javax.swing.JOptionPane.DEFAULT_OPTION, 
+                                                          javax.swing.JOptionPane.INFORMATION_MESSAGE, 
+                                                          null, 
+                                                          options, 
+                                                          options[controller.getLastPlayerChoice() == 0 ? 0 : 1]);
+        
+        if (choice != -1) { // User didn't cancel
+            controller.setupPlayers(choice);
+        } else {
+            // User canceled, use the previous setting
+            controller.setupPlayers(controller.getLastPlayerChoice());
+        }
     }
     
     private void showGameHistory() {
@@ -124,7 +144,11 @@ class TicTacToeView extends javax.swing.JFrame implements GameObserver {
             }
         } else {
             Player currentPlayer = controller.getCurrentPlayer();
-            statusLabel.setText(currentPlayer.getName() + " (" + currentPlayer.getSymbol() + ")'s turn");
+            if (currentPlayer != null) {
+                statusLabel.setText(currentPlayer.getName() + " (" + currentPlayer.getSymbol() + ")'s turn");
+            } else {
+                statusLabel.setText("Welcome to Tic-Tac-Toe");
+            }
         }
     }
     

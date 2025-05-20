@@ -3,12 +3,13 @@ import java.util.List;
 
 class GameController<G> {
     private final Board<G> board;
-    private final KoleksiPlayer<G> players;  // Menggunakan KoleksiPlayer dengan Generic
+    private KoleksiPlayer<G> players;  // Changed to non-final to allow resetting
     private final List<GameObserver> observers;
     private int currentPlayerIndex;
     private boolean gameOver;
     private Player<G> winner;
     private final GameDataPersistence dataPersistence;
+    private int lastPlayerChoice = 2; // Default to 2 players
 
     // Constructor GameController
     public GameController(int boardSize) {
@@ -42,6 +43,44 @@ class GameController<G> {
         winner = null;
         notifyGameUpdated();
     }
+    
+    // Method to start new game with player choice
+    public void startNewGameWithPlayerChoice() {
+        // Notify observers to get player choice
+        for (GameObserver observer : observers) {
+            if (observer instanceof TicTacToeView) {
+                ((TicTacToeView) observer).promptPlayerChoice();
+            }
+        }
+    }
+    
+    // Setup players with choice
+    public void setupPlayers(int playerChoice) {
+        // Save the last choice
+        this.lastPlayerChoice = playerChoice;
+        
+        // Reset player collection
+        players = new KoleksiPlayer<>(2);
+        
+        Player<G> player1 = new HumanPlayer<>("Player X", "X");
+        Player<G> player2;
+
+        if (playerChoice == 0) { // 1 Player option (index 0)
+            player2 = new ComputerPlayer<>("Player O", "O");  // Komputer sebagai pemain kedua
+        } else {
+            player2 = new HumanPlayer<>("Player O", "O");
+        }
+
+        addPlayer(player1);
+        addPlayer(player2);
+        
+        // Reset the game state
+        board.reset();
+        currentPlayerIndex = 0;
+        gameOver = false;
+        winner = null;
+        notifyGameUpdated();
+    }
 
     // Menjalankan langkah pemain
     public void makeMove(int row, int col) {
@@ -51,8 +90,13 @@ class GameController<G> {
 
         try {
             Player<G> currentPlayer = getCurrentPlayer();  // Mendapatkan pemain saat ini
+            
+            // Only make move if it's valid
+            if (!board.isValidMove(row, col)) {
+                return; // Silently return without throwing exception
+            }
+            
             currentPlayer.makeMove(board, row, col);  // Pemain melakukan gerakan
-
             notifyMoveMade(row, col, currentPlayer);
 
             if (board.checkWin()) {
@@ -70,12 +114,27 @@ class GameController<G> {
 
                 // Jika giliran komputer, panggil metode untuk gerakan otomatis
                 if (getCurrentPlayer() instanceof ComputerPlayer) {
-                    ((ComputerPlayer<G>) getCurrentPlayer()).makeAutomaticMove(board);
-                    makeMove(row, col);  // Ulangi untuk memeriksa kondisi kemenangan setelah komputer bergerak
+                    computeNextMove();
                 }
             }
         } catch (InvalidMoveException e) {
             System.err.println(e.getMessage());
+        }
+    }
+    
+    // Added method to compute next move for computer player
+    private void computeNextMove() {
+        if (getCurrentPlayer() instanceof ComputerPlayer) {
+            ComputerPlayer<G> computerPlayer = (ComputerPlayer<G>) getCurrentPlayer();
+            int[] move = computerPlayer.findBestMove(board);
+            
+            if (move != null) {
+                try {
+                    makeMove(move[0], move[1]);
+                } catch (Exception e) {
+                    System.err.println("Computer move error: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -96,6 +155,9 @@ class GameController<G> {
 
     // Mendapatkan pemain yang sedang bermain
     public Player<G> getCurrentPlayer() {
+        if (players.getSize() == 0) {
+            return null;
+        }
         return players.getPlayer(currentPlayerIndex);
     }
 
@@ -142,19 +204,9 @@ class GameController<G> {
     public List<GameResult> loadGameHistory() throws PersistenceException {
         return dataPersistence.loadGameResults();
     }
-
-    // Fungsi untuk memilih antara satu atau dua pemain
-    public void setupPlayers(int playerChoice) {
-        Player<G> player1 = new HumanPlayer<>("Player X", "X");
-        Player<G> player2;
-
-        if (playerChoice == 1) {
-            player2 = new ComputerPlayer<>("Player O", "O");  // Komputer sebagai pemain kedua
-        } else {
-            player2 = new HumanPlayer<>("Player O", "O");
-        }
-
-        addPlayer(player1);
-        addPlayer(player2);
+    
+    // Get last player choice
+    public int getLastPlayerChoice() {
+        return lastPlayerChoice;
     }
 }

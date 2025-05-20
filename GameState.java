@@ -1,0 +1,3 @@
+enum GameState {
+    IN_PROGRESS, PLAYER_X_WIN, PLAYER_O_WIN, TIE
+}

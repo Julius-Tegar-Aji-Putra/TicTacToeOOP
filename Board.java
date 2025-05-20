@@ -2,9 +2,10 @@ class Board<G> {
     private final int size;
     private final Cell<G>[][] cells;
     
+    @SuppressWarnings("unchecked")
     public Board(int size) {
         this.size = size;
-        cells = new Cell[size][size];
+        cells = (Cell<G>[][]) new Cell[size][size];
         initializeBoard();
     }
     

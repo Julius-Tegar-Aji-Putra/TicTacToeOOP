@@ -79,6 +79,8 @@ public class ComputerPlayer<G> implements Player<G> {
 
     @Override
     public G getPlayerType() {
-        return (G) "Computer"; // Untuk menandakan tipe pemain
+        @SuppressWarnings("unchecked")
+        G type = (G) "Computer";
+        return type; // Untuk menandakan tipe pemain
     }
 }

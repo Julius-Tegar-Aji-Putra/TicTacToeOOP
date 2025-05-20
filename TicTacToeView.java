@@ -1,7 +1,7 @@
 class TicTacToeView extends javax.swing.JFrame implements GameObserver {
     private final int boardWidth = 600;
     private final int boardHeight = 650;
-    private final GameController controller;
+    private final GameController<String> controller;
     
     private javax.swing.JLabel statusLabel;
     private javax.swing.JPanel boardPanel;
@@ -9,13 +9,14 @@ class TicTacToeView extends javax.swing.JFrame implements GameObserver {
     private javax.swing.JButton newGameButton;
     private javax.swing.JButton historyButton;
     
-    public TicTacToeView(GameController controller) {
+    public TicTacToeView(GameController<String> controller) {
         this.controller = controller;
         controller.addObserver(this);
         
         initializeUI();
     }
     
+    @SuppressWarnings("unused")
     private void initializeUI() {
         setTitle("Tic-Tac-Toe Game");
         setSize(boardWidth, boardHeight);
@@ -136,14 +137,14 @@ class TicTacToeView extends javax.swing.JFrame implements GameObserver {
     
     private void updateStatus() {
         if (controller.isGameOver()) {
-            Player winner = controller.getWinner();
+            Player<String> winner = controller.getWinner();
             if (winner != null) {
                 statusLabel.setText(winner.getName() + " (" + winner.getSymbol() + ") wins!");
             } else {
                 statusLabel.setText("Game ended in a tie!");
             }
         } else {
-            Player currentPlayer = controller.getCurrentPlayer();
+            Player<String> currentPlayer = controller.getCurrentPlayer();
             if (currentPlayer != null) {
                 statusLabel.setText(currentPlayer.getName() + " (" + currentPlayer.getSymbol() + ")'s turn");
             } else {
@@ -158,8 +159,9 @@ class TicTacToeView extends javax.swing.JFrame implements GameObserver {
         updateBoard();
     }
     
+    @SuppressWarnings("unused")
     @Override
-    public void onGameOver(Player winner) {
+    public <G> void onGameOver(Player<G> winner) {
         updateStatus();
         
         String message;
@@ -181,7 +183,7 @@ class TicTacToeView extends javax.swing.JFrame implements GameObserver {
     private void highlightWinningCells() {
         // For simplicity, highlight all cells for now
         // In a real implementation, you would only highlight the winning line
-        Board board = controller.getBoard();
+        Board<String> board = controller.getBoard();
         for (int i = 0; i < board.getSize(); i++) {
             for (int j = 0; j < board.getSize(); j++) {
                 if (!board.getCell(i, j).isEmpty()) {
@@ -192,12 +194,12 @@ class TicTacToeView extends javax.swing.JFrame implements GameObserver {
     }
     
     @Override
-    public void onMoveMade(int row, int col, Player player) {
+    public <G> void onMoveMade(int row, int col, Player<G> player) {
         buttons[row][col].setText(player.getSymbol());
     }
     
     private void updateBoard() {
-        Board board = controller.getBoard();
+        Board<String> board = controller.getBoard();
         for (int i = 0; i < board.getSize(); i++) {
             for (int j = 0; j < board.getSize(); j++) {
                 buttons[i][j].setText(board.getCell(i, j).getSymbol());

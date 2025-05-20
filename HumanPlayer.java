@@ -27,6 +27,8 @@ public class HumanPlayer<G> implements Player<G> {
 
     @Override
     public G getPlayerType() {
-        return (G) "Human"; // Untuk menandakan tipe pemain
+        @SuppressWarnings("unchecked")
+        G type = (G) "Human";
+        return type; // Untuk menandakan tipe pemain
     }
 }

@@ -107,11 +107,10 @@ class TicTacToeView extends javax.swing.JFrame {
             
             StringBuilder historyText = new StringBuilder("Game History:\n\n");
             
-            for (int i = 0; i < history.size(); i++) {
-                GameResult result = history.get(i);
-                historyText.append(i + 1).append(". ")
-                          .append(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(result.getDate()))
-                          .append(" - ")
+            for (GameResult result : history) { // Loop lebih sederhana
+                historyText.append(result.getGameNumber()).append(". ") // Gunakan getGameNumber()
+                          // .append(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(result.getDate())) // Tidak pakai tanggal lagi
+                          // .append(" - ") // Pemisah ini mungkin tidak perlu lagi jika tanggal hilang
                           .append(result.getResult())
                           .append("\n");
             }
@@ -160,16 +159,29 @@ class TicTacToeView extends javax.swing.JFrame {
     
     // METODE onGameOver YANG DIMODIFIKASI
     @SuppressWarnings("unused")
-    public <G> void onGameOver(Player<G> winner) {
+    public <G> void onGameOver(Player<G> winnerParam) { // Ganti nama parameter agar tidak bentrok dengan field controller
         updateStatus();
         
         String message;
-        if (winner != null) {
-            message = winner.getName() + " (" + winner.getSymbol() + ") wins!";
-            highlightWinningLine(); // Panggil metode baru untuk highlight garis kemenangan
+        // Dapatkan info dari controller
+        int gameMode = controller.getGameMode();
+        String player1Name = controller.getPlayer1Name(); // Asumsi getter ada di controller
+        // String player2Name = controller.getPlayer2Name(); // Asumsi getter ada di controller
+
+        if (winnerParam != null) {
+            if (gameMode == 0) { // 1 Player mode
+                if (winnerParam.getName().equals(player1Name)) { // Jika nama pemenang = nama P1 (Human)
+                    message = "You win!";
+                } else { // Jika pemenang adalah Computer
+                    message = winnerParam.getName() + " wins!"; // "Computer wins!"
+                }
+            } else { // 2 Players mode
+                message = winnerParam.getName() + " wins!";
+            }
+            highlightWinningLine();
         } else {
             message = "Game ended in a tie!";
-            highlightAllCellsForTie(); // Panggil metode baru untuk highlight semua sel saat seri
+            highlightAllCellsForTie();
         }
         
         javax.swing.Timer timer = new javax.swing.Timer(500, event -> {

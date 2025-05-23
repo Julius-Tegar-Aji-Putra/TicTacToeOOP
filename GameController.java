@@ -1,6 +1,9 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+
 class GameController<G> {
     public enum GameState {
         IN_PROGRESS, PLAYER_X_WIN, PLAYER_O_WIN, TIE
@@ -14,6 +17,14 @@ class GameController<G> {
     private Player<G> winner;
     private final GameDataPersistence dataPersistence;
     private int lastPlayerChoice = 2; // Default to 2 players
+    private int gameMode; // 0 = 1 Player, 1 = 2 Players
+    private String player1Name = "Player X"; // Default atau nama yang diinput
+    private String player2Name = "Player O"; // Default atau nama yang diinput
+
+
+    public String getPlayer1Name() { return player1Name; }
+    public String getPlayer2Name() { return player2Name; }
+    public int getGameMode() { return gameMode; }
 
     // Constructor GameController
     public GameController(int boardSize) {
@@ -59,33 +70,86 @@ class GameController<G> {
     
     // Setup players with choice
     public void setupPlayers(int playerChoice) {
-        // Save the last choice
+        this.gameMode = playerChoice;
         this.lastPlayerChoice = playerChoice;
-        
-        // Reset player collection
-        players.clear();
-        
-        Player<G> player1 = new HumanPlayer<>("Player X", "X");
-        Player<G> player2;
 
-        if (playerChoice == 0) { // 1 Player option (index 0)
-            player2 = new ComputerPlayer<>("Player O", "O");  // Komputer sebagai pemain kedua
-        } else {
-            player2 = new HumanPlayer<>("Player O", "O");
+        players.clear();
+
+        // Muat ikon kustom
+        ImageIcon incognitoIcon = null;
+        try {
+            // Mengasumsikan icon.jpg ada di root classpath
+            // Sesuaikan path "/icon.jpg" jika Anda meletakkannya di sub-folder dalam resources.
+            java.net.URL imageUrl = getClass().getResource("/icon.jpg");
+            if (imageUrl != null) {
+                incognitoIcon = new ImageIcon(imageUrl);
+            } else {
+                // Fallback jika resource tidak ditemukan (misalnya, coba path langsung jika sesuai)
+                // Ini kurang portabel jika aplikasi di-bundle dalam JAR.
+                // incognitoIcon = new ImageIcon("icon.jpg");
+                System.err.println("Peringatan: Ikon kustom 'icon.jpg' tidak ditemukan di classpath.");
+            }
+        } catch (Exception e) {
+            System.err.println("Error saat memuat ikon kustom: " + e.getMessage());
+            e.printStackTrace(); // Cetak stack trace untuk debugging
         }
 
-        addPlayer(player1);
-        addPlayer(player2);
-        
-        board.reset(); //
-        currentPlayerIndex = 0; //
-        gameOver = false; //
-        winner = null; //
-        // notifyGameUpdated(); // Diganti dengan pemanggilan langsung ke view
+        if (playerChoice == 0) { // 1 Player
+            this.player1Name = "Player"; 
+            this.player2Name = "Computer";
+            addPlayer(new HumanPlayer<>(this.player1Name, "X"));
+            addPlayer(new ComputerPlayer<>(this.player2Name, "O"));
+        } else { // 2 Players
+            // Meminta nama untuk Player X dengan ikon kustom
+            Object p1InputNameResult = JOptionPane.showInputDialog(
+                view, // parentComponent (gunakan 'view' jika tersedia, atau 'null')
+                "Enter name for Player X:",
+                "Input Name - Player X",      // Judul dialog
+                JOptionPane.PLAIN_MESSAGE,    // messageType (PLAIN_MESSAGE agar ikon default tidak tampil)
+                incognitoIcon,                // Ikon kustom Anda
+                null,                         // Pilihan (tidak digunakan untuk input teks bebas)
+                this.player1Name              // Nilai awal di field input
+            );
+            // Periksa apakah pengguna menekan Cancel atau menutup dialog
+            if (p1InputNameResult == null) { // Pengguna menekan cancel atau menutup dialog
+                // Pertahankan nama sebelumnya atau default, atau handle sesuai kebutuhan
+                // Untuk saat ini, kita pertahankan nama sebelumnya jika cancel.
+            } else {
+                String p1InputName = (String) p1InputNameResult;
+                 this.player1Name = (p1InputName.trim().isEmpty()) ? "Player X" : p1InputName.trim();
+            }
+
+
+            // Meminta nama untuk Player O dengan ikon kustom
+            Object p2InputNameResult = JOptionPane.showInputDialog(
+                view, // parentComponent
+                "Enter name for Player O:",
+                "Input Name - Player O",      // Judul dialog
+                JOptionPane.PLAIN_MESSAGE,    // messageType
+                incognitoIcon,                // Ikon kustom Anda
+                null,                         // Pilihan
+                this.player2Name              // Nilai awal
+            );
+            if (p2InputNameResult == null) {
+                 // Pertahankan nama sebelumnya atau default
+            } else {
+                String p2InputName = (String) p2InputNameResult;
+                this.player2Name = (p2InputName.trim().isEmpty()) ? "Player O" : p2InputName.trim();
+            }
+
+            addPlayer(new HumanPlayer<>(this.player1Name, "X"));
+            addPlayer(new HumanPlayer<>(this.player2Name, "O"));
+        }
+
+        board.reset();
+        currentPlayerIndex = 0;
+        gameOver = false;
+        winner = null;
         if (view != null) {
-            view.onGameUpdated(getCurrentGameState()); //
+            view.onGameUpdated(getCurrentGameState());
         }
     }
+
 
     // Menjalankan langkah pemain
     public void makeMove(int row, int col) {
@@ -148,17 +212,38 @@ class GameController<G> {
     }
 
     private void saveGameResult() {
-        GameResult result = new GameResult();
-        result.setDate(new java.util.Date());
-        if (winner != null) {
-            result.setResult(winner.getName() + " won");
-        } else {
-            result.setResult("Tie");
+        GameResult gameResult = new GameResult(); // Objek GameResult tidak lagi perlu Date atau gameNumber dari sini
+        String resultString;
+
+        Player<G> gameWinner = getWinner();
+
+        if (gameWinner != null) { // Ada pemenang
+            if (this.gameMode == 0) { // 1 Pemain
+                if (gameWinner.getName().equals(this.player1Name)) { // Manusia (Player) menang
+                    resultString = this.player1Name + " won";
+                } else { // Komputer menang
+                    resultString = this.player2Name + " won";
+                }
+            } else { // 2 Pemain
+                resultString = gameWinner.getName() + " won";
+            }
+        } else { // Seri
+            if (this.gameMode == 0) { // 1 Pemain
+                resultString = this.player1Name + " and " + this.player2Name + " Tie";
+            } else { // 2 Pemain
+                resultString = this.player1Name + " and " + this.player2Name + " Tie";
+            }
         }
+        
+        gameResult.setResult(resultString);
+        
         try {
-            dataPersistence.saveGameResult(result);
+            dataPersistence.saveGameResult(gameResult);
         } catch (PersistenceException e) {
             System.err.println("Failed to save game result: " + e.getMessage());
+            if (view != null) { // Beri tahu pengguna melalui UI jika gagal simpan
+                JOptionPane.showMessageDialog(view, "Error saving game history: " + e.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 

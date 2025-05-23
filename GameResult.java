@@ -1,13 +1,13 @@
 class GameResult {
-    private java.util.Date date;
+    private String gameNumber;
     private String result;
     
-    public java.util.Date getDate() {
-        return date;
+    public String getGameNumber() { // Ditambahkan
+        return gameNumber;
     }
     
-    public void setDate(java.util.Date date) {
-        this.date = date;
+    public void setGameNumber(String gameNumber) { // Ditambahkan
+        this.gameNumber = gameNumber;
     }
     
     public String getResult() {

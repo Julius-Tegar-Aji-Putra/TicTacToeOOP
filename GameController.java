@@ -16,7 +16,7 @@ class GameController<G> {
     private boolean gameOver;
     private Player<G> winner;
     private final GameDataPersistence dataPersistence;
-    private int lastPlayerChoice = 2; // Default to 2 players
+    private int lastPlayerChoice = 1; // efault ke 2 players (indeks 1) atau 0 untuk 1 player
     private int gameMode; // 0 = 1 Player, 1 = 2 Players
     private String player1Name = "Player X"; // Default atau nama yang diinput
     private String player2Name = "Player O"; // Default atau nama yang diinput
@@ -179,6 +179,7 @@ class GameController<G> {
                 saveGameResult();
             } else if (board.isFull()) {
                 gameOver = true;
+                winner = null;
                 if (view != null) {
                     view.onGameOver(null); //
         }                
@@ -276,7 +277,7 @@ class GameController<G> {
     }
 
     // Memuat riwayat permainan
-    public List<GameResult> loadGameHistory() throws PersistenceException {
+    public KoleksiGameResult loadGameHistory() throws PersistenceException {
         return dataPersistence.loadGameResults();
     }
     

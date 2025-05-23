@@ -95,7 +95,7 @@ class TicTacToeView extends javax.swing.JFrame {
     
     private void showGameHistory() {
         try {
-            java.util.List<GameResult> history = controller.loadGameHistory();
+            KoleksiGameResult history = controller.loadGameHistory();
             
             if (history.isEmpty()) {
                 javax.swing.JOptionPane.showMessageDialog(this, 
@@ -107,12 +107,13 @@ class TicTacToeView extends javax.swing.JFrame {
             
             StringBuilder historyText = new StringBuilder("Game History:\n\n");
             
-            for (GameResult result : history) { // Loop lebih sederhana
-                historyText.append(result.getGameNumber()).append(". ") // Gunakan getGameNumber()
-                          // .append(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(result.getDate())) // Tidak pakai tanggal lagi
-                          // .append(" - ") // Pemisah ini mungkin tidak perlu lagi jika tanggal hilang
-                          .append(result.getResult())
-                          .append("\n");
+            for (int i = 0; i < history.getSize(); i++) {
+                GameResult result = history.getResult(i);
+                if (result != null) { // Pastikan result tidak null
+                    historyText.append(result.getGameNumber()).append(". ")
+                              .append(result.getResult())
+                              .append("\n");
+                }
             }
             
             javax.swing.JTextArea textArea = new javax.swing.JTextArea(historyText.toString());

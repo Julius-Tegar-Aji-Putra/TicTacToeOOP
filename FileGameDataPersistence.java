@@ -7,67 +7,67 @@ import java.io.IOException;
 
 class FileGameDataPersistence implements GameDataPersistence {
     private final String fileName;
+    private static final int DEFAULT_HISTORY_CAPACITY = 100;
     
     public FileGameDataPersistence(String fileName) {
         this.fileName = fileName;
     }
     
     @Override
-    public void saveGameResult(GameResult resultData) throws PersistenceException { // Ubah nama parameter agar jelas
+    public void saveGameResult(GameResult resultData) throws PersistenceException {
         int nextGameNumber = getLastGameNumber() + 1;
         try (BufferedWriter writer = new BufferedWriter(
-                new FileWriter(fileName, true))) { // true untuk append
+                new FileWriter(fileName, true))) {
             writer.write(nextGameNumber + "," + resultData.getResult());
             writer.newLine();
         } catch (IOException e) {
-            throw new PersistenceException("Failed to save game result", e);
+            throw new PersistenceException("Gagal menyimpan hasil permainan", e);
         }
     }
     
     @Override
-    public java.util.List<GameResult> loadGameResults() throws PersistenceException {
-        java.util.List<GameResult> results = new java.util.ArrayList<>();
-        java.io.File file = new java.io.File(fileName);
+    public KoleksiGameResult loadGameResults() throws PersistenceException {
+        // Membuat instance KoleksiGameResult dengan kapasitas default
+        KoleksiGameResult gameResultsCollection = new KoleksiGameResult(DEFAULT_HISTORY_CAPACITY);
+        
+        File file = new File(fileName);
         if (!file.exists()) {
-            return results; // Kembalikan list kosong jika file tidak ada
+            return gameResultsCollection; // Kembalikan koleksi kosong jika file tidak ada
         }
         
-        try (java.io.BufferedReader reader = new java.io.BufferedReader(
-                new java.io.FileReader(fileName))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) continue; // Lewati baris kosong
+                if (line.trim().isEmpty()) continue;
                 String[] parts = line.split(",", 2);
                 if (parts.length == 2) {
-                    try {
-                        GameResult result = new GameResult();
-                        result.setGameNumber(parts[0].trim()); // Simpan nomor sebagai String
-                        result.setResult(parts[1].trim());
-                        results.add(result);
-                    } catch (NumberFormatException e) {
-                        System.err.println("Skipping invalid entry in game_data.txt: " + line + " - " + e.getMessage());
-                    }
+                    // Tidak perlu try-catch NumberFormatException di sini karena getGameNumber sudah String
+                    GameResult result = new GameResult();
+                    result.setGameNumber(parts[0].trim());
+                    result.setResult(parts[1].trim());
+                    gameResultsCollection.addResult(result); // Tambahkan ke KoleksiGameResult
                 } else {
-                     System.err.println("Skipping malformed entry in game_data.txt: " + line);
+                     System.err.println("Melewatkan entri cacat format di game_data.txt: " + line);
                 }
             }
-        } catch (java.io.IOException e) {
-            throw new PersistenceException("Failed to load game results", e);
+        } catch (IOException e) {
+            throw new PersistenceException("Gagal memuat hasil permainan", e);
         }
-        return results;
+        
+        return gameResultsCollection;
     }
 
     private int getLastGameNumber() throws PersistenceException {
         int lastNumber = 0;
         File file = new File(fileName);
-        if (!file.exists() || file.length() == 0) { // Periksa juga jika file kosong
+        if (!file.exists() || file.length() == 0) {
             return 0;
         }
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
             String lastValidLine = null;
             while ((line = reader.readLine()) != null) {
-                if (line.trim().matches("^\\d+,.*")) { // Pastikan baris dimulai dengan angka diikuti koma
+                if (line.trim().matches("^\\d+,.*")) {
                     lastValidLine = line.trim();
                 }
             }
@@ -76,10 +76,9 @@ class FileGameDataPersistence implements GameDataPersistence {
                 lastNumber = Integer.parseInt(parts[0]);
             }
         } catch (IOException e) {
-            throw new PersistenceException("Failed to read last game number", e);
+            throw new PersistenceException("Gagal membaca nomor permainan terakhir", e);
         } catch (NumberFormatException e) {
-            // Jika baris terakhir tidak memiliki format nomor yang valid, anggap 0 atau log error
-            System.err.println("Warning: Could not parse game number from last valid line.");
+            System.err.println("Peringatan: Tidak dapat mem-parse nomor permainan dari baris valid terakhir.");
         }
         return lastNumber;
     }

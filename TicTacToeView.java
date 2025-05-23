@@ -158,6 +158,7 @@ class TicTacToeView extends javax.swing.JFrame {
         updateBoard();
     }
     
+    // METODE onGameOver YANG DIMODIFIKASI
     @SuppressWarnings("unused")
     public <G> void onGameOver(Player<G> winner) {
         updateStatus();
@@ -165,26 +166,39 @@ class TicTacToeView extends javax.swing.JFrame {
         String message;
         if (winner != null) {
             message = winner.getName() + " (" + winner.getSymbol() + ") wins!";
-            highlightWinningCells();
+            highlightWinningLine(); // Panggil metode baru untuk highlight garis kemenangan
         } else {
             message = "Game ended in a tie!";
+            highlightAllCellsForTie(); // Panggil metode baru untuk highlight semua sel saat seri
         }
         
-        // Show message after a short delay
         javax.swing.Timer timer = new javax.swing.Timer(500, event -> {
             javax.swing.JOptionPane.showMessageDialog(this, message);
         });
         timer.setRepeats(false);
         timer.start();
     }
-    
-    private void highlightWinningCells() {
+
+    // METODE BARU: Untuk highlight garis kemenangan
+    private void highlightWinningLine() {
         Board<String> board = controller.getBoard();
-        for (int i = 0; i < board.getSize(); i++) {
-            for (int j = 0; j < board.getSize(); j++) {
-                if (!board.getCell(i, j).isEmpty()) {
-                    buttons[i][j].setBackground(java.awt.Color.lightGray);
-                }
+        java.util.List<int[]> winningCoords = board.getWinningLineCoordinates();
+
+        if (winningCoords != null && !winningCoords.isEmpty()) {
+            for (int[] coord : winningCoords) {
+                buttons[coord[0]][coord[1]].setBackground(java.awt.Color.GREEN); // Warna highlight untuk kemenangan
+            }
+        }
+    }
+
+    // METODE BARU: Untuk highlight semua sel saat seri
+    private void highlightAllCellsForTie() {
+        int size = controller.getBoard().getSize();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                 // Anda bisa memilih untuk mewarnai semua sel atau hanya yang terisi
+                 // Untuk "semua kotak berubah warna", kita warnai semua tombol
+                buttons[i][j].setBackground(java.awt.Color.LIGHT_GRAY); // Warna highlight untuk seri
             }
         }
     }

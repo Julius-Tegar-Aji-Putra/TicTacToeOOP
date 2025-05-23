@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 class Board<G> {
     private final int size;
     private final Cell<G>[][] cells;
@@ -110,5 +113,87 @@ class Board<G> {
             }
         }
         return true;
+    }
+
+    public List<int[]> getWinningLineCoordinates() {
+        List<int[]> winningLine = new ArrayList<>();
+
+        // Cek baris
+        for (int i = 0; i < size; i++) {
+            if (!cells[i][0].isEmpty()) {
+                Player<G> firstPlayer = cells[i][0].getPlayer();
+                boolean rowWin = true;
+                List<int[]> potentialLine = new ArrayList<>();
+                potentialLine.add(new int[]{i, 0});
+                for (int j = 1; j < size; j++) {
+                    if (cells[i][j].isEmpty() || cells[i][j].getPlayer() != firstPlayer) {
+                        rowWin = false;
+                        break;
+                    }
+                    potentialLine.add(new int[]{i, j});
+                }
+                if (rowWin) {
+                    return potentialLine;
+                }
+            }
+        }
+
+        // Cek kolom
+        for (int j = 0; j < size; j++) {
+            if (!cells[0][j].isEmpty()) {
+                Player<G> firstPlayer = cells[0][j].getPlayer();
+                boolean colWin = true;
+                List<int[]> potentialLine = new ArrayList<>();
+                potentialLine.add(new int[]{0, j});
+                for (int i = 1; i < size; i++) {
+                    if (cells[i][j].isEmpty() || cells[i][j].getPlayer() != firstPlayer) {
+                        colWin = false;
+                        break;
+                    }
+                    potentialLine.add(new int[]{i, j});
+                }
+                if (colWin) {
+                    return potentialLine;
+                }
+            }
+        }
+
+        // Cek diagonal utama (kiri atas ke kanan bawah)
+        if (!cells[0][0].isEmpty()) {
+            Player<G> firstPlayer = cells[0][0].getPlayer();
+            boolean diagWin = true;
+            List<int[]> potentialLine = new ArrayList<>();
+            potentialLine.add(new int[]{0, 0});
+            for (int i = 1; i < size; i++) {
+                if (cells[i][i].isEmpty() || cells[i][i].getPlayer() != firstPlayer) {
+                    diagWin = false;
+                    break;
+                }
+                potentialLine.add(new int[]{i, i});
+            }
+            if (diagWin) {
+                return potentialLine;
+            }
+        }
+
+        // Cek anti-diagonal (kanan atas ke kiri bawah)
+        if (!cells[0][size - 1].isEmpty()) {
+            Player<G> firstPlayer = cells[0][size - 1].getPlayer();
+            boolean antiDiagWin = true;
+            List<int[]> potentialLine = new ArrayList<>();
+            potentialLine.add(new int[]{0, size - 1});
+            for (int i = 1; i < size; i++) {
+                if (cells[i][size - 1 - i].isEmpty() || cells[i][size - 1 - i].getPlayer() != firstPlayer) {
+                    antiDiagWin = false;
+                    break;
+                }
+                potentialLine.add(new int[]{i, size - 1 - i});
+            }
+            if (antiDiagWin) {
+                return potentialLine;
+            }
+        }
+        
+        return winningLine; // Kembalikan list kosong jika tidak ada yang menang
     }
 }

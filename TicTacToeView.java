@@ -1,4 +1,4 @@
-class TicTacToeView extends javax.swing.JFrame implements GameObserver {
+class TicTacToeView extends javax.swing.JFrame {
     private final int boardWidth = 600;
     private final int boardHeight = 650;
     private final GameController<String> controller;
@@ -11,7 +11,6 @@ class TicTacToeView extends javax.swing.JFrame implements GameObserver {
     
     public TicTacToeView(GameController<String> controller) {
         this.controller = controller;
-        controller.addObserver(this);
         
         initializeUI();
     }
@@ -153,14 +152,13 @@ class TicTacToeView extends javax.swing.JFrame implements GameObserver {
         }
     }
     
-    @Override
-    public void onGameUpdated(GameState state) {
+
+    public void onGameUpdated(GameController.GameState state) {
         updateStatus();
         updateBoard();
     }
     
     @SuppressWarnings("unused")
-    @Override
     public <G> void onGameOver(Player<G> winner) {
         updateStatus();
         
@@ -181,8 +179,6 @@ class TicTacToeView extends javax.swing.JFrame implements GameObserver {
     }
     
     private void highlightWinningCells() {
-        // For simplicity, highlight all cells for now
-        // In a real implementation, you would only highlight the winning line
         Board<String> board = controller.getBoard();
         for (int i = 0; i < board.getSize(); i++) {
             for (int j = 0; j < board.getSize(); j++) {
@@ -193,7 +189,6 @@ class TicTacToeView extends javax.swing.JFrame implements GameObserver {
         }
     }
     
-    @Override
     public <G> void onMoveMade(int row, int col, Player<G> player) {
         buttons[row][col].setText(player.getSymbol());
     }

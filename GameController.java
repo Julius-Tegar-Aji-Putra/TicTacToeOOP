@@ -2,9 +2,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 class GameController<G> {
+    public enum GameState {
+        IN_PROGRESS, PLAYER_X_WIN, PLAYER_O_WIN, TIE
+    }
+
     private final Board<G> board;
-    private KoleksiPlayer<G> players;  // Changed to non-final to allow resetting
-    private final List<GameObserver> observers;
+    private List<Player<G>> players;
+    private TicTacToeView view;
     private int currentPlayerIndex;
     private boolean gameOver;
     private Player<G> winner;
@@ -14,26 +18,26 @@ class GameController<G> {
     // Constructor GameController
     public GameController(int boardSize) {
         board = new Board<>(boardSize);
-        players = new KoleksiPlayer<>(2); // Koleksi untuk dua pemain (bisa lebih sesuai pilihan)
-        observers = new ArrayList<>();
+        players = new ArrayList<>(); // Koleksi untuk dua pemain (bisa lebih sesuai pilihan)
         currentPlayerIndex = 0;
         gameOver = false;
         winner = null;
         dataPersistence = new FileGameDataPersistence("game_data.txt");
     }
 
+    // Metode untuk mengatur View
+    public void setView(TicTacToeView view) {
+        this.view = view;
+    }
+
     // Menambahkan pemain ke dalam permainan
     public void addPlayer(Player<G> player) {
-        players.addPlayer(player);
-    }
-
-    // Menambahkan observer (untuk memperbarui tampilan UI)
-    public void addObserver(GameObserver observer) {
-        observers.add(observer);
-    }
-
-    public void removeObserver(GameObserver observer) {
-        observers.remove(observer);
+        // players.addPlayer(player); // Dihapus
+        if (players.size() < 2) { // Maksimal 2 pemain
+            players.add(player);
+        } else {
+            System.out.println("Koleksi pemain penuh");
+        }
     }
 
     public void startNewGame() {
@@ -41,16 +45,15 @@ class GameController<G> {
         currentPlayerIndex = 0;
         gameOver = false;
         winner = null;
-        notifyGameUpdated();
+        if (view != null) {
+            view.onGameUpdated(getCurrentGameState()); //
+        }
     }
     
     // Method to start new game with player choice
     public void startNewGameWithPlayerChoice() {
-        // Notify observers to get player choice
-        for (GameObserver observer : observers) {
-            if (observer instanceof TicTacToeView) {
-                ((TicTacToeView) observer).promptPlayerChoice();
-            }
+        if (view != null) {
+            view.promptPlayerChoice(); //
         }
     }
     
@@ -60,7 +63,7 @@ class GameController<G> {
         this.lastPlayerChoice = playerChoice;
         
         // Reset player collection
-        players = new KoleksiPlayer<>(2);
+        players.clear();
         
         Player<G> player1 = new HumanPlayer<>("Player X", "X");
         Player<G> player2;
@@ -74,12 +77,14 @@ class GameController<G> {
         addPlayer(player1);
         addPlayer(player2);
         
-        // Reset the game state
-        board.reset();
-        currentPlayerIndex = 0;
-        gameOver = false;
-        winner = null;
-        notifyGameUpdated();
+        board.reset(); //
+        currentPlayerIndex = 0; //
+        gameOver = false; //
+        winner = null; //
+        // notifyGameUpdated(); // Diganti dengan pemanggilan langsung ke view
+        if (view != null) {
+            view.onGameUpdated(getCurrentGameState()); //
+        }
     }
 
     // Menjalankan langkah pemain
@@ -97,20 +102,28 @@ class GameController<G> {
             }
             
             currentPlayer.makeMove(board, row, col);  // Pemain melakukan gerakan
-            notifyMoveMade(row, col, currentPlayer);
+            if (view != null) {
+                view.onMoveMade(row, col, currentPlayer); //
+    }
 
             if (board.checkWin()) {
                 gameOver = true;
                 winner = currentPlayer;
-                notifyGameOver(winner);
+                if (view != null) {
+                    view.onGameOver(winner); //
+                }
                 saveGameResult();
             } else if (board.isFull()) {
                 gameOver = true;
-                notifyGameOver(null);  // Seri
+                if (view != null) {
+                    view.onGameOver(null); //
+        }                
                 saveGameResult();
             } else {
                 nextPlayer();  // Beralih ke pemain berikutnya
-                notifyGameUpdated();
+                if (view != null) {
+                    view.onGameUpdated(getCurrentGameState()); //
+                }
 
                 // Jika giliran komputer, panggil metode untuk gerakan otomatis
                 if (getCurrentPlayer() instanceof ComputerPlayer) {
@@ -129,11 +142,7 @@ class GameController<G> {
             int[] move = computerPlayer.findBestMove(board);
             
             if (move != null) {
-                try {
-                    makeMove(move[0], move[1]);
-                } catch (Exception e) {
-                    System.err.println("Computer move error: " + e.getMessage());
-                }
+                makeMove(move[0], move[1]);
             }
         }
     }
@@ -155,15 +164,15 @@ class GameController<G> {
 
     // Mendapatkan pemain yang sedang bermain
     public Player<G> getCurrentPlayer() {
-        if (players.getSize() == 0) {
+        if (players.isEmpty()) {
             return null;
         }
-        return players.getPlayer(currentPlayerIndex);
+        return players.get(currentPlayerIndex);
     }
 
     // Beralih ke pemain berikutnya
     private void nextPlayer() {
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.getSize();
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
     }
 
     // Memeriksa apakah permainan sudah selesai
@@ -174,25 +183,6 @@ class GameController<G> {
     // Mendapatkan pemenang permainan
     public Player<G> getWinner() {
         return winner;
-    }
-
-    private void notifyGameUpdated() {
-        GameState state = GameState.IN_PROGRESS;
-        for (GameObserver observer : observers) {
-            observer.onGameUpdated(state);
-        }
-    }
-
-    private void notifyGameOver(Player<G> winner) {
-        for (GameObserver observer : observers) {
-            observer.onGameOver(winner);
-        }
-    }
-
-    private void notifyMoveMade(int row, int col, Player<G> player) {
-        for (GameObserver observer : observers) {
-            observer.onMoveMade(row, col, player);
-        }
     }
 
     // Mendapatkan papan permainan
@@ -209,4 +199,35 @@ class GameController<G> {
     public int getLastPlayerChoice() {
         return lastPlayerChoice;
     }
+
+    // Mendapatkan status permainan
+    @SuppressWarnings("unused")
+    private GameState getGameState() {
+        if (gameOver) { //
+            if (winner != null) { //
+                if (winner.getSymbol().equals("X")) { //
+                    return GameState.PLAYER_X_WIN; //
+                } else if (winner.getSymbol().equals("O")) { //
+                    return GameState.PLAYER_O_WIN; //
+                }
+            }
+            return GameState.TIE; //
+        }
+        return GameState.IN_PROGRESS;//
+    }
+
+    public GameState getCurrentGameState() { // Tipe kembalian sekarang adalah GameController.GameState
+        if (gameOver) {
+            if (winner != null) {
+                if (winner.getSymbol().equals("X")) {
+                    return GameState.PLAYER_X_WIN;
+                } else if (winner.getSymbol().equals("O")) {
+                    return GameState.PLAYER_O_WIN;
+                }
+            }
+            return GameState.TIE;
+        }
+        return GameState.IN_PROGRESS;
+    }
 }
+

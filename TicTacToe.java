@@ -6,8 +6,10 @@ public class TicTacToe {
         
         // Setup and display UI first
         TicTacToeView view = new TicTacToeView(controller);
-        view.setVisible(true);
+        controller.setView(view);
         
+        view.setVisible(true);
+
         // Use SwingUtilities.invokeLater to ensure UI is fully loaded before showing dialog
         SwingUtilities.invokeLater(() -> {
             // Prompt for player choice

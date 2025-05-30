@@ -182,7 +182,7 @@ class GameController<G> {
     private void computeNextMove() {
         if (getCurrentPlayer() instanceof ComputerPlayer) {
             ComputerPlayer<G> computerPlayer = (ComputerPlayer<G>) getCurrentPlayer();
-            int[] move = computerPlayer.findBestMove(board);
+            int[] move = computerPlayer.findBestMove(board,this);
             
             if (move != null) {
                 makeMove(move[0], move[1]);
@@ -224,6 +224,10 @@ class GameController<G> {
                 JOptionPane.showMessageDialog(view, "Error saving game history: " + e.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    public List<Player<G>> getPlayers() {
+        return this.players;
     }
 
     public Player<G> getCurrentPlayer() {

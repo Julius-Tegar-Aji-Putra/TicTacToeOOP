@@ -17,3 +17,38 @@
 17,Player and Computer Tie
 18,Player 1 and Player 2 Tie
 19,Player won
+20,Player won
+21,Player won
+22,Computer won
+23,Player won
+24,Computer won
+25,Player won
+26,Player won
+27,Player won
+28,Computer won
+29,Player won
+30,Player won
+31,Player won
+32,Player won
+33,Player won
+34,Player won
+35,Player won
+36,Player won
+37,Player won
+38,Player won
+39,Player won
+40,Player won
+41,Player won
+42,Player won
+43,Player won
+44,Player won
+45,Player won
+46,Player won
+47,Player won
+48,Player won
+49,Player and Computer Tie
+50,Computer won
+51,Player and Computer Tie
+52,Computer won
+53,Computer won
+54,Player and Computer Tie

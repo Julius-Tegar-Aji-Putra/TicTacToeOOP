@@ -2,3 +2,48 @@
 2,Imron and Julius Tie
 3,Computer won
 4,Player X and Player O Tie
+5,Player and Computer Tie
+6,Computer won
+7,Computer won
+8,Computer won
+9,Computer won
+10,Ivan won
+11,Player X won
+12,Player X and Player O Tie
+13,Player X won
+14,Computer won
+15,Computer won
+16,Computer won
+17,Computer won
+18,Computer won
+19,Computer won
+20,Computer won
+21,Player X won
+22,Player won
+23,Computer won
+24,Player won
+25,Computer won
+26,Computer won
+27,Player won
+28,Computer won
+29,Player won
+30,Computer won
+31,Computer won
+32,Player won
+33,Player and Computer Tie
+34,Computer won
+35,Player won
+36,Computer won
+37,Player won
+38,Computer won
+39,Player won
+40,Player won
+41,Computer won
+42,Computer won
+43,Player and Computer Tie
+44,Player and Computer Tie
+45,Player won
+46,Player won
+47,Player won
+48,Computer won
+49,Player won

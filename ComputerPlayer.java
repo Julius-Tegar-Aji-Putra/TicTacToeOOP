@@ -3,32 +3,18 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class ComputerPlayer<G> implements Player<G> {
-    private String name;
-    private String symbol;
+public class ComputerPlayer<G> extends AbstractPlayer<G> {
     private Random random = new Random();
 
     public ComputerPlayer(String name, String symbol) {
-        this.name = name;
-        this.symbol = symbol;
+        super(name, symbol);
     }
 
     @Override
-    public String getSymbol() {
-        return symbol;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void makeMove(Board<G> board, int row, int col) throws InvalidMoveException {
+    protected void validateMove(Board<G> board, int row, int col) throws InvalidMoveException {
         if (!board.isValidMove(row, col)) {
             throw new InvalidMoveException("Invalid move.");
         }
-        board.placeMark(row, col, this);
     }
 
     private Player<G> getOpponentPlayer(GameController<G> controller) {
@@ -100,38 +86,31 @@ public class ComputerPlayer<G> implements Player<G> {
             for (int j = 0; j < size; j++) {
                 if (board.isValidMove(i, j)) {
                     Cell<G> currentCell = board.getCell(i, j);
-                    Player<G> originalPlayerInCell = currentCell.getPlayer(); // Simpan pemain asli
+                    Player<G> originalPlayerInCell = currentCell.getPlayer(); 
 
-                    currentCell.setPlayer(player); // Coba tempatkan tanda pemain
+                    currentCell.setPlayer(player); 
                     
                     boolean wins = board.checkWin(); 
                     
-                    currentCell.setPlayer(originalPlayerInCell); // Kembalikan sel ke kondisi semula (undo)
-                                                              // Jika sebelumnya kosong, originalPlayerInCell akan null
-                                                              // Jika clear() lebih sesuai, pastikan sel.clear() menangani ini.
-                                                              // Atau, jika sel kosong, setPlayer(null) atau clear().
-                                                              // Untuk konsistensi, jika originalPlayerInCell adalah null, kita bisa panggil clear().
+                    currentCell.setPlayer(originalPlayerInCell); 
                     if (originalPlayerInCell == null) {
-                         currentCell.clear(); // Pastikan sel benar-benar kosong jika memang begitu
+                         currentCell.clear(); 
                     }
 
 
                     if (wins) {
-                        // Verifikasi bahwa kemenangan adalah milik 'player' yang dites
-                        // Ini penting karena checkWin() pada Board mungkin tidak spesifik pemain mana
-                        currentCell.setPlayer(player); // Set lagi untuk verifikasi
+                        currentCell.setPlayer(player); 
                         boolean playerIsWinner = false;
                         if (board.checkWin()) { 
                            List<int[]> winningLine = board.getWinningLineCoordinates();
                            if (!winningLine.isEmpty()) {
                                Cell<G> firstCellInLine = board.getCell(winningLine.get(0)[0], winningLine.get(0)[1]);
-                               if (firstCellInLine.getPlayer() == player) { // Periksa apakah pemain di garis kemenangan adalah 'player'
+                               if (firstCellInLine.getPlayer() == player) {
                                    playerIsWinner = true;
                                }
                            }
                         }
                         
-                        // Undo lagi setelah verifikasi
                         currentCell.setPlayer(originalPlayerInCell);
                         if (originalPlayerInCell == null) {
                             currentCell.clear();

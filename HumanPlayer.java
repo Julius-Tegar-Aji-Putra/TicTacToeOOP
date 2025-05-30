@@ -1,28 +1,14 @@
-public class HumanPlayer<G> implements Player<G> {
-    private String name;
-    private String symbol;
+public class HumanPlayer<G> extends AbstractPlayer<G> {
 
     public HumanPlayer(String name, String symbol) {
-        this.name = name;
-        this.symbol = symbol;
+        super(name, symbol);
     }
 
     @Override
-    public String getSymbol() {
-        return symbol;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void makeMove(Board<G> board, int row, int col) throws InvalidMoveException {
+    protected void validateMove(Board<G> board, int row, int col) throws InvalidMoveException {
         if (!board.isValidMove(row, col)) {
             throw new InvalidMoveException("Invalid move.");
         }
-        board.getCell(row, col).setPlayer(this);  
     }
 
     @Override

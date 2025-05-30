@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
@@ -141,9 +140,10 @@ class GameController<G> {
         try {
             Player<G> currentPlayer = getCurrentPlayer();  
             
-            if (!board.isValidMove(row, col)) {
-                return; 
-            }
+            // HAPUS BLOK IF BERIKUT INI:
+            // if (!board.isValidMove(row, col)) { 
+            //     return; 
+            // }
             
             currentPlayer.makeMove(board, row, col);  
             if (view != null) {
@@ -261,21 +261,6 @@ class GameController<G> {
         return lastPlayerChoice;
     }
 
-    @SuppressWarnings("unused")
-    private GameState getGameState() {
-        if (gameOver) { 
-            if (winner != null) { 
-                if (winner.getSymbol().equals("X")) { 
-                    return GameState.PLAYER_X_WIN; 
-                } else if (winner.getSymbol().equals("O")) { 
-                    return GameState.PLAYER_O_WIN; 
-                }
-            }
-            return GameState.TIE; 
-        }
-        return GameState.IN_PROGRESS;
-    }
-
     public GameState getCurrentGameState() { 
         if (gameOver) {
             if (winner != null) {
@@ -290,4 +275,3 @@ class GameController<G> {
         return GameState.IN_PROGRESS;
     }
 }
-

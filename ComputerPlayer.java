@@ -59,23 +59,24 @@ public class ComputerPlayer<G> implements Player<G> {
             }
         }
 
-        if (size == 3 && board.isValidMove(1, 1)) {
-            return new int[]{1, 1};
+        if (size % 2 != 0) { 
+            int middle = size / 2;
+            if (board.isValidMove(middle, middle)) {
+                return new int[]{middle, middle};
+            }
         }
 
         List<int[]> cornerMoves = new ArrayList<>();
-        if (size == 3) {
-            if (board.isValidMove(0, 0)) cornerMoves.add(new int[]{0, 0});
-            if (board.isValidMove(0, 2)) cornerMoves.add(new int[]{0, 2});
-            if (board.isValidMove(2, 0)) cornerMoves.add(new int[]{2, 0});
-            if (board.isValidMove(2, 2)) cornerMoves.add(new int[]{2, 2});
-            
-            if (!cornerMoves.isEmpty()) {
-                Collections.shuffle(cornerMoves);
-                return cornerMoves.get(0);
-            }
-        }
+        if (board.isValidMove(0, 0)) cornerMoves.add(new int[]{0, 0});
+        if (board.isValidMove(0, size - 1)) cornerMoves.add(new int[]{0, size - 1});
+        if (board.isValidMove(size - 1, 0)) cornerMoves.add(new int[]{size - 1, 0});
+        if (board.isValidMove(size - 1, size - 1)) cornerMoves.add(new int[]{size - 1, size - 1});
         
+        if (!cornerMoves.isEmpty()) {
+            Collections.shuffle(cornerMoves);
+            return cornerMoves.get(0);
+        }
+
         List<int[]> validMoves = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -92,7 +93,7 @@ public class ComputerPlayer<G> implements Player<G> {
         return null; 
     }
 
-    // Helper method untuk mencari langkah kemenangan untuk pemain tertentu
+
     private int[] findWinningMove(Board<G> board, Player<G> player) {
         int size = board.getSize();
         for (int i = 0; i < size; i++) {

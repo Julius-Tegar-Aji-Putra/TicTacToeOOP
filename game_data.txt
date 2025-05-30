@@ -52,3 +52,5 @@
 52,Computer won
 53,Computer won
 54,Player and Computer Tie
+55,Player won
+56,Player and Computer Tie

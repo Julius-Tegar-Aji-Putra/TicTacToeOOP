@@ -2,11 +2,11 @@ class GameResult {
     private String gameNumber;
     private String result;
     
-    public String getGameNumber() { // Ditambahkan
+    public String getGameNumber() { 
         return gameNumber;
     }
     
-    public void setGameNumber(String gameNumber) { // Ditambahkan
+    public void setGameNumber(String gameNumber) { 
         this.gameNumber = gameNumber;
     }
     

@@ -23,8 +23,7 @@ class TicTacToeView extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
         setLayout(new java.awt.BorderLayout());
-        
-        // Top panel with status label
+
         javax.swing.JPanel topPanel = new javax.swing.JPanel(new java.awt.BorderLayout());
         topPanel.setBackground(java.awt.Color.darkGray);
         
@@ -35,12 +34,11 @@ class TicTacToeView extends javax.swing.JFrame {
         statusLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.add(statusLabel, java.awt.BorderLayout.CENTER);
         
-        // Button panel
         javax.swing.JPanel buttonPanel = new javax.swing.JPanel(new java.awt.FlowLayout());
         buttonPanel.setBackground(java.awt.Color.darkGray);
         
         newGameButton = new javax.swing.JButton("New Game");
-        newGameButton.addActionListener(e -> controller.startNewGameWithPlayerChoice()); // Changed to prompt player choice
+        newGameButton.addActionListener(e -> controller.startNewGameWithPlayerChoice()); 
         buttonPanel.add(newGameButton);
         
         historyButton = new javax.swing.JButton("Game History");
@@ -50,7 +48,6 @@ class TicTacToeView extends javax.swing.JFrame {
         topPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
         add(topPanel, java.awt.BorderLayout.NORTH);
         
-        // Board panel
         boardPanel = new javax.swing.JPanel();
         int size = controller.getBoard().getSize();
         boardPanel.setLayout(new java.awt.GridLayout(size, size));
@@ -73,7 +70,6 @@ class TicTacToeView extends javax.swing.JFrame {
         updateStatus();
     }
     
-    // Method to prompt player choice
     public void promptPlayerChoice() {
         String[] options = {"1 Player", "2 Players"};
         int choice = javax.swing.JOptionPane.showOptionDialog(this, 
@@ -85,10 +81,9 @@ class TicTacToeView extends javax.swing.JFrame {
                                                           options, 
                                                           options[controller.getLastPlayerChoice() == 0 ? 0 : 1]);
         
-        if (choice != -1) { // User didn't cancel
+        if (choice != -1) { 
             controller.setupPlayers(choice);
         } else {
-            // User canceled, use the previous setting
             controller.setupPlayers(controller.getLastPlayerChoice());
         }
     }
@@ -105,11 +100,11 @@ class TicTacToeView extends javax.swing.JFrame {
                 return;
             }
             
-            StringBuilder historyText = new StringBuilder("Game History:\n\n");
+            StringBuilder historyText = new StringBuilder("Game History:\n");
             
             for (int i = 0; i < history.getSize(); i++) {
                 GameResult result = history.getResult(i);
-                if (result != null) { // Pastikan result tidak null
+                if (result != null) { 
                     historyText.append(result.getGameNumber()).append(". ")
                               .append(result.getResult())
                               .append("\n");
@@ -158,23 +153,20 @@ class TicTacToeView extends javax.swing.JFrame {
         updateBoard();
     }
     
-    // METODE onGameOver YANG DIMODIFIKASI
     @SuppressWarnings("unused")
-    public <G> void onGameOver(Player<G> winnerParam) { // Ganti nama parameter agar tidak bentrok dengan field controller
+    public <G> void onGameOver(Player<G> winnerParam) { 
         updateStatus();
         
         String message;
-        // Dapatkan info dari controller
         int gameMode = controller.getGameMode();
-        String player1Name = controller.getPlayer1Name(); // Asumsi getter ada di controller
-        // String player2Name = controller.getPlayer2Name(); // Asumsi getter ada di controller
+        String player1Name = controller.getPlayer1Name(); 
 
         if (winnerParam != null) {
             if (gameMode == 0) { // 1 Player mode
-                if (winnerParam.getName().equals(player1Name)) { // Jika nama pemenang = nama P1 (Human)
+                if (winnerParam.getName().equals(player1Name)) { 
                     message = "You win!";
-                } else { // Jika pemenang adalah Computer
-                    message = winnerParam.getName() + " wins!"; // "Computer wins!"
+                } else { 
+                    message = winnerParam.getName() + " wins!"; 
                 }
             } else { // 2 Players mode
                 message = winnerParam.getName() + " wins!";
@@ -192,26 +184,22 @@ class TicTacToeView extends javax.swing.JFrame {
         timer.start();
     }
 
-    // METODE BARU: Untuk highlight garis kemenangan
     private void highlightWinningLine() {
         Board<String> board = controller.getBoard();
         java.util.List<int[]> winningCoords = board.getWinningLineCoordinates();
 
         if (winningCoords != null && !winningCoords.isEmpty()) {
             for (int[] coord : winningCoords) {
-                buttons[coord[0]][coord[1]].setBackground(java.awt.Color.GREEN); // Warna highlight untuk kemenangan
+                buttons[coord[0]][coord[1]].setBackground(java.awt.Color.GREEN); 
             }
         }
     }
 
-    // METODE BARU: Untuk highlight semua sel saat seri
     private void highlightAllCellsForTie() {
         int size = controller.getBoard().getSize();
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                 // Anda bisa memilih untuk mewarnai semua sel atau hanya yang terisi
-                 // Untuk "semua kotak berubah warna", kita warnai semua tombol
-                buttons[i][j].setBackground(java.awt.Color.LIGHT_GRAY); // Warna highlight untuk seri
+                buttons[i][j].setBackground(java.awt.Color.LIGHT_GRAY); 
             }
         }
     }

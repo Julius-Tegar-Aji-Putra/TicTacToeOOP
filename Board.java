@@ -15,7 +15,7 @@ class Board<G> {
     private void initializeBoard() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                cells[i][j] = new Cell<>(i, j);  // Initialize Cell with Player<G>
+                cells[i][j] = new Cell<>(i, j);  
             }
         }
     }
@@ -29,7 +29,7 @@ class Board<G> {
     }
     
     public void placeMark(int row, int col, Player<G> player) {
-        cells[row][col].setPlayer(player);  // Place player on the cell
+        cells[row][col].setPlayer(player);  
     }
     
     public Cell<G> getCell(int row, int col) {
@@ -40,23 +40,21 @@ class Board<G> {
         initializeBoard();
     }
     
-    // Check for win conditions
+
     public boolean checkWin() {
-        // Check rows
         for (int i = 0; i < size; i++) {
             if (!cells[i][0].isEmpty() && checkRowWin(i)) {
                 return true;
             }
         }
         
-        // Check columns
+
         for (int i = 0; i < size; i++) {
             if (!cells[0][i].isEmpty() && checkColumnWin(i)) {
                 return true;
             }
         }
         
-        // Check diagonals
         if (!cells[0][0].isEmpty() && checkDiagonalWin()) {
             return true;
         }
@@ -118,7 +116,6 @@ class Board<G> {
     public List<int[]> getWinningLineCoordinates() {
         List<int[]> winningLine = new ArrayList<>();
 
-        // Cek baris
         for (int i = 0; i < size; i++) {
             if (!cells[i][0].isEmpty()) {
                 Player<G> firstPlayer = cells[i][0].getPlayer();
@@ -138,7 +135,6 @@ class Board<G> {
             }
         }
 
-        // Cek kolom
         for (int j = 0; j < size; j++) {
             if (!cells[0][j].isEmpty()) {
                 Player<G> firstPlayer = cells[0][j].getPlayer();
@@ -158,7 +154,6 @@ class Board<G> {
             }
         }
 
-        // Cek diagonal utama (kiri atas ke kanan bawah)
         if (!cells[0][0].isEmpty()) {
             Player<G> firstPlayer = cells[0][0].getPlayer();
             boolean diagWin = true;
@@ -176,7 +171,6 @@ class Board<G> {
             }
         }
 
-        // Cek anti-diagonal (kanan atas ke kiri bawah)
         if (!cells[0][size - 1].isEmpty()) {
             Player<G> firstPlayer = cells[0][size - 1].getPlayer();
             boolean antiDiagWin = true;
@@ -194,6 +188,6 @@ class Board<G> {
             }
         }
         
-        return winningLine; // Kembalikan list kosong jika tidak ada yang menang
+        return winningLine; 
     }
 }

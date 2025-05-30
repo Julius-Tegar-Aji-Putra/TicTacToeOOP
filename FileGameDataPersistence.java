@@ -27,12 +27,11 @@ class FileGameDataPersistence implements GameDataPersistence {
     
     @Override
     public KoleksiGameResult loadGameResults() throws PersistenceException {
-        // Membuat instance KoleksiGameResult dengan kapasitas default
         KoleksiGameResult gameResultsCollection = new KoleksiGameResult(DEFAULT_HISTORY_CAPACITY);
         
         File file = new File(fileName);
         if (!file.exists()) {
-            return gameResultsCollection; // Kembalikan koleksi kosong jika file tidak ada
+            return gameResultsCollection;
         }
         
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
@@ -41,11 +40,10 @@ class FileGameDataPersistence implements GameDataPersistence {
                 if (line.trim().isEmpty()) continue;
                 String[] parts = line.split(",", 2);
                 if (parts.length == 2) {
-                    // Tidak perlu try-catch NumberFormatException di sini karena getGameNumber sudah String
                     GameResult result = new GameResult();
                     result.setGameNumber(parts[0].trim());
                     result.setResult(parts[1].trim());
-                    gameResultsCollection.addResult(result); // Tambahkan ke KoleksiGameResult
+                    gameResultsCollection.addResult(result); 
                 } else {
                      System.err.println("Melewatkan entri cacat format di game_data.txt: " + line);
                 }

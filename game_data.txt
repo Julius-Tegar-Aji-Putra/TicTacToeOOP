@@ -5,3 +5,15 @@
 5,Player X won
 6,Player X won
 7,Player O won
+8,Computer won
+9,Player won
+10,Test 1 won
+11,Player won
+12,Player won
+13,Computer won
+14,Player won
+15,Player won
+16,Computer won
+17,Player and Computer Tie
+18,Player 1 and Player 2 Tie
+19,Player won

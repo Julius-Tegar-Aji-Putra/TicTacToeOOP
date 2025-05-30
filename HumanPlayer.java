@@ -22,13 +22,13 @@ public class HumanPlayer<G> implements Player<G> {
         if (!board.isValidMove(row, col)) {
             throw new InvalidMoveException("Invalid move.");
         }
-        board.getCell(row, col).setPlayer(this);  // Set this player to the cell
+        board.getCell(row, col).setPlayer(this);  
     }
 
     @Override
     public G getPlayerType() {
         @SuppressWarnings("unchecked")
         G type = (G) "Human";
-        return type; // Untuk menandakan tipe pemain
+        return type; 
     }
 }

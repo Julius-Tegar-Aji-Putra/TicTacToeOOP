@@ -13,15 +13,14 @@ public class KoleksiGameResult {
     }
 
     public void addResult(GameResult result) {
-        if (result == null) { // Tambahkan null check
+        if (result == null) { 
             System.out.println("Tidak dapat menambahkan hasil null ke koleksi.");
             return;
         }
-        if (size < capacity) { // Gunakan variabel capacity
+        if (size < capacity) { 
             results[size++] = result;
         } else {
             System.out.println("Koleksi hasil permainan penuh. Kapasitas maksimal: " + capacity);
-            // Opsi: Implementasi circular buffer atau buang hasil tertua jika ingin selalu menambah
         }
     }
 

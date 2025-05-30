@@ -1,2 +1,4 @@
 1,Player and Computer Tie
 2,Imron and Julius Tie
+3,Computer won
+4,Player X and Player O Tie

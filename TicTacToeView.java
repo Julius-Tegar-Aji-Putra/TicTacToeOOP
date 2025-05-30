@@ -1,7 +1,7 @@
 class TicTacToeView extends javax.swing.JFrame {
     private final int boardWidth = 600;
     private final int boardHeight = 650;
-    private final GameController<String> controller;
+    private final GameController controller;
     
     private javax.swing.JLabel statusLabel;
     private javax.swing.JPanel boardPanel;
@@ -9,7 +9,7 @@ class TicTacToeView extends javax.swing.JFrame {
     private javax.swing.JButton newGameButton;
     private javax.swing.JButton historyButton;
     
-    public TicTacToeView(GameController<String> controller) {
+    public TicTacToeView(GameController controller) {
         this.controller = controller;
         
         initializeUI();

@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
+
+import javax.swing.*;
 
 class GameController<G> {
     public enum GameState {
@@ -20,23 +20,23 @@ class GameController<G> {
     private String player1Name = "Player X"; 
     private String player2Name = "Player O"; 
 
-
-    public String getPlayer1Name() { return player1Name; }
-    public String getPlayer2Name() { return player2Name; }
-    public int getGameMode() { return gameMode; }
-
-    public GameController(int boardSize) {
+    public GameController (int boardSize) {
         board = new Board<>(boardSize);
         players = new ArrayList<>(); 
         currentPlayerIndex = 0;
         gameOver = false;
         winner = null;
         dataPersistence = new FileGameDataPersistence("game_data.txt");
+        this.view = new TicTacToeView(this);
+        this.view.setVisible(true); 
+        SwingUtilities.invokeLater(() -> {
+            this.view.promptPlayerChoice(); 
+        });
     }
 
-    public void setView(TicTacToeView view) {
-        this.view = view;
-    }
+    public String getPlayer1Name() { return player1Name; }
+    public String getPlayer2Name() { return player2Name; }
+    public int getGameMode() { return gameMode; }
 
     public void addPlayer(Player<G> player) {
         if (players.size() < 2) { 
@@ -139,16 +139,10 @@ class GameController<G> {
 
         try {
             Player<G> currentPlayer = getCurrentPlayer();  
-            
-            // HAPUS BLOK IF BERIKUT INI:
-            // if (!board.isValidMove(row, col)) { 
-            //     return; 
-            // }
-            
             currentPlayer.makeMove(board, row, col);  
             if (view != null) {
                 view.onMoveMade(row, col, currentPlayer); 
-    }
+            }
 
             if (board.checkWin()) {
                 gameOver = true;
@@ -162,7 +156,7 @@ class GameController<G> {
                 winner = null;
                 if (view != null) {
                     view.onGameOver(null); 
-        }                
+                }                
                 saveGameResult();
             } else {
                 nextPlayer();  

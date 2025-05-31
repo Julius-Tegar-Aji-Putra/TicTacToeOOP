@@ -47,3 +47,6 @@
 47,Player won
 48,Computer won
 49,Player won
+50,Player won
+51,Computer won
+52,Computer won

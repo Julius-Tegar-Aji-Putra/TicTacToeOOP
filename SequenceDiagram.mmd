@@ -1,0 +1,154 @@
+sequenceDiagram
+    participant TicTacToe
+    participant GameController
+    participant Board
+    participant TicTacToeView
+    participant FileGameDataPersistence
+    participant HumanPlayer
+    participant ComputerPlayer
+    participant AbstractPlayer
+    participant Cell
+    participant KoleksiGameResult
+    participant GameResult
+
+    %% Application Startup
+    TicTacToe->>+GameController: new GameController<String>(3)
+    GameController->>+Board: new Board(boardSize)
+    Board->>+Cell: new Cell(i, j)
+    Cell-->>-Board: cell instance
+    Board-->>-GameController: board instance
+    
+    GameController->>+FileGameDataPersistence: new FileGameDataPersistence("game_data.txt")
+    FileGameDataPersistence-->>-GameController: persistence instance
+    
+    GameController->>+TicTacToeView: new TicTacToeView(this)
+    TicTacToeView-->>-GameController: view instance
+    
+    GameController->>+TicTacToeView: setVisible(true)
+    TicTacToeView-->>-GameController: 
+    
+    GameController->>+TicTacToeView: promptPlayerChoice()
+    TicTacToeView-->>-GameController: 
+    TicTacToeView->>+GameController: setupPlayers(playerChoice)
+
+    %% Player Setup
+    alt playerChoice == 0 (1 Player)
+        GameController->>+HumanPlayer: new HumanPlayer(player1Name, "X")
+        HumanPlayer->>+AbstractPlayer: super(name, symbol)
+        AbstractPlayer-->>-HumanPlayer: 
+        HumanPlayer-->>-GameController: player1 instance
+        
+        GameController->>+ComputerPlayer: new ComputerPlayer(player2Name, "O")
+        ComputerPlayer->>+AbstractPlayer: super(name, symbol)
+        AbstractPlayer-->>-ComputerPlayer: 
+        ComputerPlayer-->>-GameController: player2 instance
+    else playerChoice == 1 (2 Players)
+        GameController->>+HumanPlayer: new HumanPlayer(player1Name, "X")
+        HumanPlayer->>+AbstractPlayer: super(name, symbol)
+        AbstractPlayer-->>-HumanPlayer: 
+        HumanPlayer-->>-GameController: player1 instance
+        
+        GameController->>+HumanPlayer: new HumanPlayer(player2Name, "O")
+        HumanPlayer->>+AbstractPlayer: super(name, symbol)
+        AbstractPlayer-->>-HumanPlayer: 
+        HumanPlayer-->>-GameController: player2 instance
+    end
+
+    GameController->>+Board: reset()
+    Board-->>-GameController: 
+    GameController->>+TicTacToeView: onGameUpdated(getCurrentGameState())
+    TicTacToeView-->>-GameController: 
+    GameController-->>-TicTacToe: 
+
+    %% Main Game Loop
+    loop Game Loop
+        TicTacToeView->>+GameController: makeMove(row, col)
+        GameController->>+AbstractPlayer: makeMove(board, row, col)
+        AbstractPlayer->>AbstractPlayer: validateMove(board, row, col)
+        AbstractPlayer->>+Board: placeMark(row, col, this)
+        Board->>+Cell: setPlayer(player)
+        Cell-->>-Board: 
+        Board-->>-AbstractPlayer: 
+        AbstractPlayer-->>-GameController: 
+        
+        GameController->>+TicTacToeView: onMoveMade(row, col, currentPlayer)
+        TicTacToeView-->>-GameController: 
+        
+        GameController->>+Board: checkWin()
+        Board-->>-GameController: boolean result
+
+        alt Game Won
+            GameController->>+TicTacToeView: onGameOver(winner)
+            TicTacToeView-->>-GameController: 
+            
+            GameController->>GameController: saveGameResult()
+            activate GameController
+            GameController->>+GameResult: new GameResult()
+            GameResult-->>-GameController: result instance
+            GameController->>+GameResult: setResult(resultString)
+            GameResult-->>-GameController: 
+            GameController->>+FileGameDataPersistence: saveGameResult(gameResult)
+            FileGameDataPersistence-->>-GameController: 
+            deactivate GameController
+            
+        else Board Full
+            GameController->>+Board: isFull()
+            Board-->>-GameController: boolean result
+            GameController->>+TicTacToeView: onGameOver(null)
+            TicTacToeView-->>-GameController: 
+            
+            GameController->>GameController: saveGameResult()
+            activate GameController
+            GameController->>+GameResult: new GameResult()
+            GameResult-->>-GameController: result instance
+            GameController->>+GameResult: setResult(resultString)
+            GameResult-->>-GameController: 
+            GameController->>+FileGameDataPersistence: saveGameResult(gameResult)
+            FileGameDataPersistence-->>-GameController: 
+            deactivate GameController
+            
+        else Game Continues
+            GameController->>GameController: nextPlayer()
+            activate GameController
+            deactivate GameController
+            
+            GameController->>+TicTacToeView: onGameUpdated(getCurrentGameState())
+            TicTacToeView-->>-GameController: 
+
+            alt Current Player is Computer
+                GameController->>GameController: computeNextMove()
+                activate GameController
+                GameController->>+ComputerPlayer: findBestMove(board, this)
+                ComputerPlayer->>+Board: isValidMove(row, col)
+                Board-->>-ComputerPlayer: boolean result
+                ComputerPlayer->>+Board: checkWin()
+                Board-->>-ComputerPlayer: boolean result
+                ComputerPlayer-->>-GameController: move [row, col]
+                GameController->>GameController: makeMove(move[0], move[1])
+                deactivate GameController
+            end
+        end
+        GameController-->>-TicTacToeView: 
+    end
+
+    %% Game History Loading (Optional)
+    opt View Game History
+        TicTacToeView->>+GameController: loadGameHistory()
+        GameController->>+FileGameDataPersistence: loadGameResults()
+        FileGameDataPersistence->>+KoleksiGameResult: new KoleksiGameResult(capacity)
+        KoleksiGameResult-->>-FileGameDataPersistence: collection instance
+
+        loop For each line in file
+            FileGameDataPersistence->>+GameResult: new GameResult()
+            GameResult-->>-FileGameDataPersistence: result instance
+            FileGameDataPersistence->>+GameResult: setGameNumber(gameNumber)
+            GameResult-->>-FileGameDataPersistence: 
+            FileGameDataPersistence->>+GameResult: setResult(result)
+            GameResult-->>-FileGameDataPersistence: 
+            FileGameDataPersistence->>+KoleksiGameResult: addResult(result)
+            KoleksiGameResult-->>-FileGameDataPersistence: 
+        end
+
+        FileGameDataPersistence-->>-GameController: KoleksiGameResult
+        GameController-->>-TicTacToeView: KoleksiGameResult
+    end

@@ -23,18 +23,23 @@ class TicTacToeView extends javax.swing.JFrame {
         setResizable(false);
         setLayout(new java.awt.BorderLayout());
 
-        javax.swing.JPanel topPanel = new javax.swing.JPanel(new java.awt.BorderLayout());
+        javax.swing.JPanel topPanel = new javax.swing.JPanel();
+        topPanel.setLayout(new javax.swing.BoxLayout(topPanel, javax.swing.BoxLayout.Y_AXIS));
         topPanel.setBackground(new java.awt.Color(70, 90, 120));
+        topPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(25, 20, 15, 20));
 
         statusLabel = new javax.swing.JLabel("Tic-Tac-Toe");
         statusLabel.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 24));
         statusLabel.setForeground(java.awt.Color.WHITE);
         statusLabel.setHorizontalAlignment(javax.swing.JLabel.CENTER);
-        statusLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        topPanel.add(statusLabel, java.awt.BorderLayout.CENTER);
+        statusLabel.setAlignmentX(javax.swing.JComponent.CENTER_ALIGNMENT);
+        topPanel.add(statusLabel);
+
+        topPanel.add(javax.swing.Box.createVerticalStrut(12));
 
         javax.swing.JPanel buttonPanel = new javax.swing.JPanel(new java.awt.FlowLayout());
         buttonPanel.setBackground(new java.awt.Color(70, 90, 120));
+        buttonPanel.setAlignmentX(javax.swing.JComponent.CENTER_ALIGNMENT);
 
         newGameButton = new javax.swing.JButton("New Game");
         newGameButton.setBackground(java.awt.Color.WHITE);
@@ -60,13 +65,14 @@ class TicTacToeView extends javax.swing.JFrame {
         historyButton.addActionListener(e -> showGameHistory());
         buttonPanel.add(historyButton);
 
-        topPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
+        topPanel.add(buttonPanel);
         add(topPanel, java.awt.BorderLayout.NORTH);
 
         createStyledBoard();
         updateStatus();
     }
 
+    @SuppressWarnings("unused")
     private void createStyledBoard() {
         javax.swing.JPanel boardContainer = new javax.swing.JPanel();
         boardContainer.setLayout(new java.awt.BorderLayout());
@@ -74,11 +80,11 @@ class TicTacToeView extends javax.swing.JFrame {
         boardContainer.setBorder(javax.swing.BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
         boardPanel = new javax.swing.JPanel();
-        boardPanel.setLayout(new java.awt.GridLayout(3, 3, 0, 0));
+        int size = controller.getBoard().getSize();
+        boardPanel.setLayout(new java.awt.GridLayout(size, size, 0, 0));
         boardPanel.setBackground(java.awt.Color.WHITE);
         boardPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        int size = controller.getBoard().getSize();
         buttons = new javax.swing.JButton[size][size];
 
         for (int i = 0; i < size; i++) {
@@ -135,18 +141,14 @@ class TicTacToeView extends javax.swing.JFrame {
         java.awt.Color hoverBg = new java.awt.Color(240, 245, 250);
 
         button.addMouseListener(new java.awt.event.MouseAdapter() {
-            javax.swing.Timer hoverTimer;
-            boolean isHovering = false;
 
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
-                isHovering = true;
                 animateColor(button, originalBg, hoverBg, 150);
             }
 
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
-                isHovering = false;
                 animateColor(button, button.getBackground(), originalBg, 150);
             }
         });
@@ -173,6 +175,7 @@ class TicTacToeView extends javax.swing.JFrame {
         });
     }
 
+    @SuppressWarnings("unused")
     private void animateColor(javax.swing.JButton button, java.awt.Color fromColor, java.awt.Color toColor, int duration) {
         javax.swing.Timer timer = new javax.swing.Timer(10, null);
         long startTime = System.currentTimeMillis();
@@ -251,6 +254,7 @@ class TicTacToeView extends javax.swing.JFrame {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void updateStatus() {
         if (controller.isGameOver()) {
             Player<String> winner = controller.getWinner();
@@ -305,6 +309,7 @@ class TicTacToeView extends javax.swing.JFrame {
         timer.start();
     }
 
+    @SuppressWarnings("unchecked")
     private void highlightWinningLine() {
         Board<String> board = controller.getBoard();
         java.util.List<int[]> winningCoords = board.getWinningLineCoordinates();
@@ -329,6 +334,7 @@ class TicTacToeView extends javax.swing.JFrame {
         buttons[row][col].setText(player.getSymbol());
     }
 
+    @SuppressWarnings("unchecked")
     private void updateBoard() {
         Board<String> board = controller.getBoard();
         for (int i = 0; i < board.getSize(); i++) {
